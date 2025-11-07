@@ -1,4 +1,5 @@
 import cv2
+import time
 
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
@@ -32,6 +33,8 @@ def detect_bounding_box(vid):
     return (x+w/2, y+h/2)
 
 while True:
+    st = time.time()
+
     result, video_frame = video_capture.read()
 
     if result is False:
@@ -43,6 +46,9 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
+
+    time_spend = time.time()-st
+    time.sleep(max(0, 0.15-time_spend)) # desafogar serial
 
 video_capture.release()
 cv2.destroyAllWindows()
