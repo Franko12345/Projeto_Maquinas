@@ -47,8 +47,10 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
-    time_spend = time.time()-st
-    time.sleep(max(0, 0.15-time_spend)) # desafogar serial
+    ellapsed_time = time.time()-st
+
+    print(f"Ellapsed time {ellapsed_time}")
+    time.sleep(max(0, 0.15-ellapsed_time)) # desafogar serial
 
 video_capture.release()
 cv2.destroyAllWindows()
