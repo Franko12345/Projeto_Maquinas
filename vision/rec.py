@@ -13,8 +13,10 @@ if not video_capture.isOpened():
 else:
     width = video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    print(f"res: {width}x{height}")
 
-
+input()
+    
 def detect_bounding_box(vid):
     global width, height
     gray_image = cv2.cvtColor(vid, cv2.COLOR_BGR2GRAY)
@@ -32,6 +34,8 @@ def detect_bounding_box(vid):
 
     return (x+w/2, y+h/2)
 
+delay = True
+
 while True:
     st = time.time()
 
@@ -47,10 +51,10 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
-    ellapsed_time = time.time()-st
-
-    print(f"Ellapsed time {ellapsed_time}")
-    time.sleep(max(0, 0.15-ellapsed_time)) # desafogar serial
+    if delay:
+        ellapsed_time = time.time()-st
+        print(f"Ellapsed time {ellapsed_time}")
+        time.sleep(max(0, 0.05-ellapsed_time)) # desafogar serial
 
 video_capture.release()
 cv2.destroyAllWindows()
