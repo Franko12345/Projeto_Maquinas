@@ -1,6 +1,22 @@
 import cv2
 import time
 
+import RPi.GPIO as GPIO
+import serial
+
+# Configuração UART
+UART_PORT = "/dev/ttyS0"  # Pode ser /dev/ttyS0 dependendo da config
+BAUD_RATE = 9600
+
+serial_port = serial.Serial(port=UART_PORT, baudrate=BAUD_RATE, timeout=1)
+
+# Configuração GPIO
+GPIO.setmode(GPIO.BCM)
+LED_PIN = 18
+GPIO.setup(LED_PIN, GPIO.OUT)
+
+
+
 face_classifier = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )
@@ -28,10 +44,6 @@ def detect_bounding_box(vid):
     face = max(faces, key=lambda x: x[2]*x[3])
     (x, y, w, h) = face
 
-    cv2.circle(vid, (int(x+w/2), int(y+h/2)), 5, (0, 255, 0), 4)
-    cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
-    cv2.putText(vid, f"X: {int(round((x+w/2)-round(width/2)))} Y:{int(round((y+h/2)-round(height/2)))}", (x, y), cv2.FONT_HERSHEY_PLAIN, 2, (255,255,255))
-
     return (int(round((x+w/2)-round(width/2))), int(round((y+h/2)-round(height/2))))
 
 delay = True
@@ -46,15 +58,18 @@ while True:
 
     face = detect_bounding_box(video_frame)
 
-    cv2.imshow("My Face Detection Project", video_frame)
+    if(face != 0):
+        payload = f"{face[0]},{face[1]}\n"
+    else:
+        payload = "null\n"
 
-    if cv2.waitKey(1) & 0xFF == ord("q"):
-        break
+    serial_port.write(payload.encode("utf-8"))
+    # print(f"[TX] Enviado: {payload}")
 
     if delay:
         ellapsed_time = time.time()-st
-        print(f"Ellapsed time {ellapsed_time}")
-        time.sleep(max(0, 0.05-ellapsed_time)) # desafogar serial
+        # print(f"Ellapsed time {ellapsed_time}")
+        time.sleep(max(0, 0.1-ellapsed_time)) # desafogar serial
 
 video_capture.release()
 cv2.destroyAllWindows()
